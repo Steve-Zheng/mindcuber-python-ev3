@@ -1,4 +1,4 @@
-# redit: https://github.com/cavenel/ev3dev_examples/blob/master/python/pyev3/rubiks.py
+# credit: https://github.com/cavenel/ev3dev_examples/blob/master/python/pyev3/rubiks.py
 # Modified to use ev3_dc
 
 import ev3_dc as ev3
