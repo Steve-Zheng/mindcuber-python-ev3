@@ -16,10 +16,11 @@ ops = b''.join((
     ev3.GVX(4),  # VALUE1 (G)
     ev3.GVX(8),  # VALUE1 (B)
 ))
-reply = ev3device.send_direct_cmd(ops,global_mem=12)
+reply = ev3device.send_direct_cmd(ops, global_mem=12)
 print(reply)
 fmt = "<%dI" % 3
-values=struct.unpack(fmt,reply)
+values = struct.unpack(fmt, reply)
+values = tuple(i//4 for i in values)
 print(values)
 
 color = color = (
@@ -31,5 +32,5 @@ color = color = (
     'red',
     'white',
     'brown'
-)[ev3.Color(port=ev3.PORT_2,ev3_obj=ev3device).color]
+)[ev3.Color(port=ev3.PORT_2, ev3_obj=ev3device).color]
 print(color)
