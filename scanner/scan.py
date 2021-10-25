@@ -40,6 +40,8 @@ class Cube():
 
         self.state = ['U', 'D', 'F', 'L', 'B', 'R']
 
+        self.white = tuple((49,67,31))
+
     def apply_transformation(self, transformation):
         self.state = [self.state[t] for t in transformation]
 
@@ -60,8 +62,6 @@ class Cube():
 
     def init_motors(self):
         print("Initializing motors")
-        # self.rotate.start_move_to(360*self.rotate_ratio, speed=50, brake=True)
-        # self.wait_rotate()
         self.rotate.position = 0  # reset
 
         self.flipper.start_move(direction=-1, speed=30)
@@ -121,7 +121,7 @@ class Cube():
             round((self.rotate.position + 270 * direction * nb) / 135.0)
 
         self.rotate.start_move_to(
-            final_dest, speed=self.rotate_speed, ramp_up=0, ramp_down=300, brake=True)
+             final_dest, speed=self.rotate_speed, brake=True)
         self.wait_rotate()
         if nb >= 1:
             for i in range(nb):
@@ -139,7 +139,7 @@ class Cube():
 
         self.put_arm_middle()
 
-        self.colors[int(self.scan_order[self.k])] = self.rgb.read_rgb()  # To be implemented
+        self.colors[int(self.scan_order[self.k])] = self.rgb.read_rgb(self.white)
 
         self.k += 1
         i = 0
@@ -154,7 +154,7 @@ class Cube():
             current_position = self.rotate.position
             if current_position >= (i*135)-5:
                 sleep(0.05)
-                current_color = self.rgb.read_rgb()  # To be implemented
+                current_color = self.rgb.read_rgb(self.white)
                 self.colors[int(self.scan_order[self.k])] = current_color
                 print("Face: ", index, "current position: ",
                       i, "current color: ", current_color)
@@ -200,8 +200,10 @@ class Cube():
         self.wait_sensor_arm()
 
     def remove_arm(self):
-        self.sensor_arm.start_move_to(0, speed=50, brake=True)
-        self.wait_sensor_arm()
+        self.sensor_arm.start_move(direction=1, speed=30)
+        sleep(2)
+        self.sensor_arm.stop(brake=True)
+        self.sensor_arm.position = 0
 
     def remove_arm_halfway(self):
         self.sensor_arm.start_move_to(-400, speed=50, brake=True)
@@ -219,7 +221,8 @@ class Cube():
 if(__name__ == "__main__"):
     cube = Cube()
     # cube.put_arm_edge(2)
-    # cube.scan()
-    cube.flip()
-    cube.push_arm_away()
-    cube.disable_brake()
+    cube.scan()
+    # cube.flip()
+    # cube.push_arm_away()
+    # cube.disable_brake()
+    print(cube.colors)
