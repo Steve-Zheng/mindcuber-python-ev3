@@ -4,6 +4,7 @@
 import ev3_dc as ev3
 from time import sleep
 from read_rgb import RGB
+import json
 
 class ScanError(Exception):
     pass
@@ -34,13 +35,16 @@ class Cube():
         self.cube = {}
         self.rotate_speed = 40
         self.hold_cube_pos = 85
-        self.corner_to_edge_diff = 60
+        self.corner_to_edge_diff = 10
 
         self.init_motors()
 
         self.state = ['U', 'D', 'F', 'L', 'B', 'R']
 
-        self.white = tuple((49,67,31))
+        self.white = []
+
+        self.colors = {}
+        self.k = 0
 
     def apply_transformation(self, transformation):
         self.state = [self.state[t] for t in transformation]
@@ -76,9 +80,14 @@ class Cube():
 
         print("Motors initialized")
 
+    def calibrate_rgb(self):
+        self.put_arm_edge(8)
+        self.white = self.rgb.read_rgb(calibrate=True)
+        print("White: ", self.white)
+
     def scan(self):
-        self.colors = {}
-        self.k = 0
+        self.calibrate_rgb()
+
         self.scan_face(1)
 
         self.flip()
@@ -97,6 +106,10 @@ class Cube():
 
         self.flip()
         self.scan_face(6)
+
+        self.rotate_cube(-1,1)
+        self.flip()
+        self.rotate_cube(1,2)
 
     def flip(self):
         current_position = self.flipper.position
@@ -121,7 +134,7 @@ class Cube():
             round((self.rotate.position + 270 * direction * nb) / 135.0)
 
         self.rotate.start_move_to(
-             final_dest, speed=self.rotate_speed, brake=True)
+            final_dest, speed=self.rotate_speed, brake=True)
         self.wait_rotate()
         if nb >= 1:
             for i in range(nb):
@@ -132,18 +145,21 @@ class Cube():
                 self.apply_transformation(transformation)
 
     def scan_face(self, index):
-        print("Scanning face ", index)
+        print("Scanning face", index)
 
         if self.flipper.position > 35:
             self.push_arm_away()
 
         self.put_arm_middle()
 
-        self.colors[int(self.scan_order[self.k])] = self.rgb.read_rgb(self.white)
+        self.colors[str(self.scan_order[self.k])
+                    ] = self.rgb.read_rgb(self.white)
+        print("Face:", index, "current position: 0", "current color:",
+              self.colors[str(self.scan_order[self.k])])
 
         self.k += 1
         i = 0
-        self.put_arm_corner(i)
+        self.put_arm_corner(0)
         i += 1
 
         self.wait_rotate()
@@ -153,11 +169,11 @@ class Cube():
         while self.rotate.busy:
             current_position = self.rotate.position
             if current_position >= (i*135)-5:
-                sleep(0.05)
+                sleep(0.1)
                 current_color = self.rgb.read_rgb(self.white)
-                self.colors[int(self.scan_order[self.k])] = current_color
-                print("Face: ", index, "current position: ",
-                      i, "current color: ", current_color)
+                self.colors[str(self.scan_order[self.k])] = current_color
+                print("Face:", index, "current position:",
+                      i, "current color:", current_color)
                 i += 1
                 self.k += 1
 
@@ -189,18 +205,24 @@ class Cube():
         self.wait_sensor_arm()
 
     def put_arm_corner(self, i):
-        if i == 2:
-            diff = self.corner_to_edge_diff
-        elif i == 6:
-            diff = self.corner_to_edge_diff*-1
+        # if i == 3 or i == 5 or i == 7:
+        #     diff = self.corner_to_edge_diff
+        # elif i == 7:
+        #     diff = self.corner_to_edge_diff
+        # else:
+        #     diff = 0
+        if i==1:
+            self.sensor_arm.start_move_to(-600, speed=30, brake=True)
+        elif i==3:
+            self.sensor_arm.start_move_to(-630, speed=30, brake=True)
+        elif i==5:
+            self.sensor_arm.start_move_to(-600, speed=30, brake=True)
         else:
-            diff = 0
-        # diff=0
-        self.sensor_arm.start_move_to(-580-diff, speed=30, brake=True)
+            self.sensor_arm.start_move_to(-590, speed=30, brake=True)
         self.wait_sensor_arm()
 
     def remove_arm(self):
-        self.sensor_arm.start_move(direction=1, speed=30)
+        self.sensor_arm.start_move(direction=1, speed=40)
         sleep(2)
         self.sensor_arm.stop(brake=True)
         self.sensor_arm.position = 0
@@ -210,7 +232,14 @@ class Cube():
         self.wait_sensor_arm()
 
     def put_arm_edge(self, i):
-        self.sensor_arm.start_move_to(-650, speed=50, brake=True)
+        if i == 2:
+            self.sensor_arm.start_move_to(-660, speed=40, brake=True)
+        elif i == 4:
+            self.sensor_arm.start_move_to(-660, speed=40, brake=True)
+        elif i == 6:
+            self.sensor_arm.start_move_to(-640, speed=40, brake=True)
+        elif i == 8:
+            self.sensor_arm.start_move_to(-630, speed=40, brake=True)
         self.wait_sensor_arm()
 
     def disable_brake(self):
@@ -218,11 +247,31 @@ class Cube():
         self.flipper.stop(brake=False)
         self.sensor_arm.stop(brake=False)
 
+
 if(__name__ == "__main__"):
     cube = Cube()
-    # cube.put_arm_edge(2)
+    # cube.calibrate_rgb()
+    # cube.scan_face(1)
+
     cube.scan()
+    #print(cube.colors)
+    colors=str(cube.colors)
+    colors=colors.replace("'",'"')
+    print(colors)
+    with open("output.json","w") as output_file:
+        output_file.write(colors)
     # cube.flip()
     # cube.push_arm_away()
-    # cube.disable_brake()
-    print(cube.colors)
+
+    # cube.rotate.start_move_to(270*cube.rotate_ratio, speed=25, brake=True)
+    # cube.wait_rotate()
+    # cube.put_arm_edge(8)
+
+    # cube.rotate.start_move_to(7*135, speed=25, brake=True)
+    # cube.wait_rotate()
+    # cube.put_arm_corner(7)
+    # input()
+    # cube.rotate.start_move_to(0, speed=50, brake=True)
+    # cube.wait_rotate()
+
+    cube.disable_brake()

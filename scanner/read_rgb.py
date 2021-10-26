@@ -2,11 +2,12 @@ import ev3_dc as ev3
 import struct
 import numpy as np
 
+
 class RGB():
-    def __init__(self,ev3_obj):
+    def __init__(self, ev3_obj):
         self.ev3device = ev3_obj
-    
-    def read_rgb(self,white):
+
+    def read_rgb(self, white=(), calibrate=False):
         ops = b''.join((
             ev3.opInput_Device,  # operation
             ev3.READY_RAW,  # CMD
@@ -22,5 +23,11 @@ class RGB():
         reply = self.ev3device.send_direct_cmd(ops, global_mem=12)
         fmt = "<%dI" % 3
         values = struct.unpack(fmt, reply)
-        values = np.array(tuple(i//4 for i in values))
-        return tuple(255* values//np.array(white))
+        values = np.array(list(i//4 for i in values))
+        if calibrate:
+            return list(values)
+        else:
+            temp_result = list(255 * values//np.array(white))
+            for i in range(len(temp_result)):
+                temp_result[i]=min(255,temp_result[i])
+            return temp_result
