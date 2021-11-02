@@ -1,13 +1,13 @@
 # credit: https://github.com/cavenel/ev3dev_examples/blob/master/python/pyev3/rubiks.py
 # Modified to use ev3_dc
-import sys
 import os
+import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from rubikscolorresolver import resolve_colors
-from scanner.read_rgb import RGB
-from time import sleep
 import ev3_dc as ev3
+from time import sleep
+from scanner.read_rgb import RGB
+from rubikscolorresolver import resolve_colors
 
 
 class ScanError(Exception):
@@ -78,7 +78,6 @@ class Cube():
         print("Motors initialized")
 
     def calibrate_rgb(self):
-        self.put_arm_edge(8)
         self.white = self.rgb.read_rgb(calibrate=True)
         print("White: ", self.white)
 
@@ -121,15 +120,17 @@ class Cube():
     def flip(self):
         current_position = self.flipper.position
         if (current_position <= self.hold_cube_pos-10 or current_position >= self.hold_cube_pos+10):
-            self.flipper.start_move_to(self.hold_cube_pos, speed=30)
+            self.flipper.start_move_to(
+                self.hold_cube_pos, speed=30, brake=True)
             self.wait_flipper()
 
-        self.flipper.start_move_to(200, speed=5)
+        self.flipper.start_move_to(200, speed=30)
         self.wait_flipper()
 
         sleep(0.2)
 
-        self.flipper.start_move_to(self.hold_cube_pos, speed=30, brake=True)
+        self.flipper.start_move_to(self.hold_cube_pos, speed=40, brake=True)
+        #self.flipper.start_move_to(0, speed=30, brake=True)
         self.wait_flipper()
 
     def rotate_cube(self, direction, nb):
@@ -144,24 +145,13 @@ class Cube():
         self.wait_rotate()
 
     def scan_face(self, index):
-        if index == 1:
-            self.calibrate_rgb()
         print("Scanning face", index)
 
         if self.flipper.position > 35:
             self.push_flipper_away()
 
-        self.put_arm_middle()
-
-        self.colors[str(self.scan_order[self.k])
-                    ] = self.rgb.read_rgb(self.white)
-        print("Face:", index, "current position: 0", "current color:",
-              self.colors[str(self.scan_order[self.k])])
-
-        self.k += 1
-        i = 0
-        self.put_arm_corner(0)
-        i += 1
+        i = 1
+        self.put_arm_corner()
 
         self.wait_rotate()
         self.rotate.position = 0
@@ -169,8 +159,10 @@ class Cube():
 
         while self.rotate.busy:
             current_position = self.rotate.position
-            if current_position >= (i*135)-5:
-                sleep(0.1)
+            if current_position >= (i*270)-5:
+                # sleep(0.1)
+                if self.k == 0:
+                    self.calibrate_rgb()
                 current_color = self.rgb.read_rgb(self.white)
                 self.colors[str(self.scan_order[self.k])] = current_color
                 print("Face:", index, "current position:",
@@ -178,17 +170,13 @@ class Cube():
                 i += 1
                 self.k += 1
 
-                if i == 9:
+                if i == 5:
                     if index == 6:
                         self.remove_arm()
                     else:
                         self.remove_arm_halfway()
-                elif i % 2:
-                    self.put_arm_corner(i)
-                else:
-                    self.put_arm_edge(i)
-        if i < 9:
-            raise ScanError("i is %d..should be 9" % i)
+        if i < 5:
+            raise ScanError("i is %d..should be 4" % i)
 
         self.wait_rotate()
         self.rotate.start_move_to(360*self.rotate_ratio, speed=30, brake=True)
@@ -201,25 +189,8 @@ class Cube():
         self.flipper.stop(brake=True)
         self.flipper.position = 0
 
-    def put_arm_middle(self):
-        self.sensor_arm.start_move_to(-750, speed=40, brake=True)
-        self.wait_sensor_arm()
-
-    def put_arm_corner(self, i):
-        # if i == 3 or i == 5 or i == 7:
-        #     diff = self.corner_to_edge_diff
-        # elif i == 7:
-        #     diff = self.corner_to_edge_diff
-        # else:
-        #     diff = 0
-        if i == 1:
-            self.sensor_arm.start_move_to(-600, speed=30, brake=True)
-        elif i == 3:
-            self.sensor_arm.start_move_to(-630, speed=30, brake=True)
-        elif i == 5:
-            self.sensor_arm.start_move_to(-600, speed=30, brake=True)
-        else:
-            self.sensor_arm.start_move_to(-590, speed=30, brake=True)
+    def put_arm_corner(self):
+        self.sensor_arm.start_move_to(-650, speed=30, brake=True)
         self.wait_sensor_arm()
 
     def remove_arm(self):
@@ -230,17 +201,6 @@ class Cube():
 
     def remove_arm_halfway(self):
         self.sensor_arm.start_move_to(-400, speed=50, brake=True)
-        self.wait_sensor_arm()
-
-    def put_arm_edge(self, i):
-        if i == 2:
-            self.sensor_arm.start_move_to(-660, speed=40, brake=True)
-        elif i == 4:
-            self.sensor_arm.start_move_to(-660, speed=40, brake=True)
-        elif i == 6:
-            self.sensor_arm.start_move_to(-640, speed=40, brake=True)
-        elif i == 8:
-            self.sensor_arm.start_move_to(-630, speed=40, brake=True)
         self.wait_sensor_arm()
 
     def disable_brake(self):
@@ -259,7 +219,9 @@ if(__name__ == "__main__"):
     # cube.calibrate_rgb()
     # cube.scan_face(1)
 
-    cube.scan()
+    cube.flip()
+    # cube.scan_face(1)
+
     # print(cube.colors)
 
     # cube.flip()
@@ -275,5 +237,6 @@ if(__name__ == "__main__"):
     # input()
     # cube.rotate.start_move_to(0, speed=50, brake=True)
     # cube.wait_rotate()
+    # cube.put_arm_corner()
 
     cube.disable_brake()

@@ -4,7 +4,7 @@
 import ev3_dc as ev3
 import time
 
-from scanner.scan import Cube
+from scanner.scan_2x2x2 import Cube
 import kociemba
 
 
@@ -283,8 +283,6 @@ if __name__ == "__main__":
         if ultrasonic.distance < 1.5:
             break
         time.sleep(0.1)
-
-    time.sleep(1)
 
     cubestr = cube.scan()
     stepstr = kociemba.solve(cubestr)
