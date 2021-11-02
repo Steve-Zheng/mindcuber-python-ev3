@@ -7,4 +7,4 @@ Under development.
 
 This project uses [EV3_DC](https://github.com/ChristophGaukel/ev3-python3) library to directly send commands from PC to the EV3 device.
 
-Credit: [ev3dev_examples](https://github.com/cavenel/ev3dev_examples/blob/master/python/pyev3/rubiks.py)
+Credits: [ev3dev_examples](https://github.com/cavenel/ev3dev_examples/blob/master/python/pyev3/rubiks.py), [rubiks-color-resolver](https://github.com/dwalton76/rubiks-color-resolver)

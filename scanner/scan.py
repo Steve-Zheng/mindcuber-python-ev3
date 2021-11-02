@@ -1,21 +1,25 @@
 # credit: https://github.com/cavenel/ev3dev_examples/blob/master/python/pyev3/rubiks.py
 # Modified to use ev3_dc
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import ev3_dc as ev3
 from time import sleep
-from read_rgb import RGB
-import json
+from scanner.read_rgb import RGB
+from rubikscolorresolver import resolve_colors
+
 
 class ScanError(Exception):
     pass
 
 
 class Cube():
-    def __init__(self):
-        ev3device = ev3.EV3(protocol=ev3.USB, host='00:16:53:83:D8:4D')
+    def __init__(self,ev3device,flipper,rotate):
+        #ev3device = ev3.EV3(protocol=ev3.USB, host='00:16:53:83:D8:4D')
 
-        self.flipper = ev3.Motor(ev3.PORT_A, ev3_obj=ev3device)
-        self.rotate = ev3.Motor(ev3.PORT_B, ev3_obj=ev3device)
+        self.flipper = flipper
+        self.rotate = rotate
         self.sensor_arm = ev3.Motor(ev3.PORT_C, ev3_obj=ev3device)
 
         self.rotate_ratio = 3
@@ -34,7 +38,7 @@ class Cube():
 
         self.cube = {}
         self.rotate_speed = 40
-        self.hold_cube_pos = 85
+        self.hold_cube_pos = 100
         self.corner_to_edge_diff = 10
 
         self.init_motors()
@@ -107,9 +111,21 @@ class Cube():
         self.flip()
         self.scan_face(6)
 
-        self.rotate_cube(-1,1)
+        #self.rotate_cube(-1, 1)
+        #self.flip()
         self.flip()
-        self.rotate_cube(1,2)
+        self.flip()
+
+        self.push_arm_away()
+        #self.rotate_cube(1, 2)
+
+        colors_str = str(self.colors)
+        colors_str = colors_str.replace("'", '"')
+        # print(colors)
+        with open("output.json", "w") as output_file:
+            output_file.write(colors_str)
+        solve_steps = resolve_colors(["", "--filename", "output.json"])
+        return solve_steps
 
     def flip(self):
         current_position = self.flipper.position
@@ -117,10 +133,12 @@ class Cube():
             self.flipper.start_move_to(self.hold_cube_pos, speed=30)
             self.wait_flipper()
 
-        self.flipper.start_move_to(180, speed=30)
+        self.flipper.start_move_to(200, speed=5)
         self.wait_flipper()
 
-        self.flipper.start_move_to(self.hold_cube_pos, speed=50, brake=True)
+        sleep(0.2)
+
+        self.flipper.start_move_to(self.hold_cube_pos, speed=30, brake=True)
         self.wait_flipper()
 
         transformation = [2, 4, 1, 3, 0, 5]
@@ -211,11 +229,11 @@ class Cube():
         #     diff = self.corner_to_edge_diff
         # else:
         #     diff = 0
-        if i==1:
+        if i == 1:
             self.sensor_arm.start_move_to(-600, speed=30, brake=True)
-        elif i==3:
+        elif i == 3:
             self.sensor_arm.start_move_to(-630, speed=30, brake=True)
-        elif i==5:
+        elif i == 5:
             self.sensor_arm.start_move_to(-600, speed=30, brake=True)
         else:
             self.sensor_arm.start_move_to(-590, speed=30, brake=True)
@@ -254,12 +272,8 @@ if(__name__ == "__main__"):
     # cube.scan_face(1)
 
     cube.scan()
-    #print(cube.colors)
-    colors=str(cube.colors)
-    colors=colors.replace("'",'"')
-    print(colors)
-    with open("output.json","w") as output_file:
-        output_file.write(colors)
+    # print(cube.colors)
+    
     # cube.flip()
     # cube.push_arm_away()
 
