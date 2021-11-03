@@ -27,12 +27,13 @@ class Cube():
 
         self.rgb = RGB(ev3device)
         self.scan_order = [
-            5, 9, 6, 3, 2, 1, 4, 7, 8,
-            23, 27, 24, 21, 20, 19, 22, 25, 26,
-            50, 54, 51, 48, 47, 46, 49, 52, 53,
-            14, 10, 13, 16, 17, 18, 15, 12, 11,
-            41, 43, 44, 45, 42, 39, 38, 37, 40,
-            32, 34, 35, 36, 33, 30, 29, 28, 31]
+            2, 1, 3, 4,
+            10,9,11,12,
+            22,21,23,24,
+            7,8,6,5,
+            20,18,17,19,
+            16,14,13,15
+        ]
 
         self.cube = {}
         self.rotate_speed = 40
@@ -124,7 +125,7 @@ class Cube():
                 self.hold_cube_pos, speed=30, brake=True)
             self.wait_flipper()
 
-        self.flipper.start_move_to(200, speed=30)
+        self.flipper.start_move_to(185, speed=40, brake=True)
         self.wait_flipper()
 
         sleep(0.2)

@@ -124,7 +124,7 @@ class Cube():
             self.flipper.start_move_to(self.hold_cube_pos, speed=30)
             self.wait_flipper()
 
-        self.flipper.start_move_to(200, speed=5)
+        self.flipper.start_move_to(180, speed=40, brake=True)
         self.wait_flipper()
 
         sleep(0.2)
@@ -259,10 +259,10 @@ if(__name__ == "__main__"):
     # cube.calibrate_rgb()
     # cube.scan_face(1)
 
-    cube.scan()
+    # cube.scan()
     # print(cube.colors)
 
-    # cube.flip()
+    cube.flip()
     # cube.push_flipper_away()
 
     # cube.rotate.start_move_to(270*cube.rotate_ratio, speed=25, brake=True)
