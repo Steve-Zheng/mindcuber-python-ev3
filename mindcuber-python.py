@@ -57,21 +57,24 @@ def rot(dir=1, release=0):
 def turn(dir=1, times=1):
 
     if times == 1:
-        turnn.start_move_by(-310*dir, speed=60, brake=True)
+        turnn.start_move_by(-310*dir, speed=30, brake=True)
         waitT()
-        turnn.start_move_by(40*dir, speed=60, brake=True)
+        turnn.start_move_by(40*dir, speed=30, brake=True)
         waitT()
     if times == 2:
-        turnn.start_move_by(-580*dir, speed=60, brake=True)
+        turnn.start_move_by(-580*dir, speed=30, brake=True)
         waitT()
-        turnn.start_move_by(40*dir, speed=60, brake=True)
+        turnn.start_move_by(40*dir, speed=30, brake=True)
         waitT()
     if times == 3:
-        turnn.start_move_by(310*dir, speed=60, brake=True)
+        turnn.start_move_by(310*dir, speed=30, brake=True)
         waitT()
-        turnn.start_move_by(-40*dir, speed=60, brake=True)
+        turnn.start_move_by(-40*dir, speed=30, brake=True)
         waitT()
 
+def fix_rotate():
+    pass
+    # turnn.start_move_by(10,speed=80, brake=True)
 
 # solve the cube
 def solve():

@@ -259,10 +259,10 @@ if(__name__ == "__main__"):
     # cube.calibrate_rgb()
     # cube.scan_face(1)
 
-    # cube.scan()
+    cube.scan()
     # print(cube.colors)
 
-    cube.flip()
+    # cube.flip()
     # cube.push_flipper_away()
 
     # cube.rotate.start_move_to(270*cube.rotate_ratio, speed=25, brake=True)
