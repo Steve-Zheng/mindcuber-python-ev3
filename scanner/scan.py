@@ -102,11 +102,13 @@ class Cube():
         self.flip()
         self.scan_face(6)
 
-        #self.rotate_cube(-1, 1)
+        self.rotate_cube(-1, 1)
+        self.flip()
+        self.rotate_cube(-1, 1)
         # self.flip()
-        self.flip()
-        self.flip()
-
+        # self.flip()
+        # self.rotate_cube(1, 1)
+        # self.flip()
         self.push_flipper_away()
         #self.rotate_cube(1, 2)
 
@@ -215,7 +217,7 @@ class Cube():
         if i == 1:
             self.sensor_arm.start_move_to(-600, speed=30, brake=True)
         elif i == 3:
-            self.sensor_arm.start_move_to(-630, speed=30, brake=True)
+            self.sensor_arm.start_move_to(-600, speed=30, brake=True)
         elif i == 5:
             self.sensor_arm.start_move_to(-600, speed=30, brake=True)
         else:
@@ -259,7 +261,7 @@ if(__name__ == "__main__"):
     # cube.calibrate_rgb()
     # cube.scan_face(1)
 
-    cube.scan()
+    cube.flip()
     # print(cube.colors)
 
     # cube.flip()

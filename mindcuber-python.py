@@ -20,16 +20,6 @@ def waitT():
     time.sleep(0.1)
 
 
-# holds the upper layers
-def hold():
-    rotate.start_move_to(100, speed=25, brake=True)
-    # wait()
-    # rotate.start_move_to(120, speed=10, brake=True)
-    # wait()
-
-# larga as layers de cima
-
-
 def release():
     rotate.start_move_to(20, speed=35, brake=True)
     wait()
@@ -44,18 +34,23 @@ def release():
 
 
 def rot(dir=1, release=0):
+    print(dir,release)
     for i in range(dir):
         cube.flip()
 
     if release == 0 or release == 1:
-        cube.push_arm_away()
+        cube.push_flipper_away() 
 
+def hold_cube():
+    current_position = rotate.position
+    if (current_position <= 90 or current_position >= 110):
+        rotate.start_move_to(100, speed=30)
+    cube.wait_flipper()
 
 # roda a plataform
 # "dir" = 1 ou -1 : sentido ponteiros relogio ou contra relogio
 # "times" = quantas vezes roda (rodar 3 vezes é igual a rodar uma vez no sentido contrario)
 def turn(dir=1, times=1):
-
     if times == 1:
         turnn.start_move_by(-310*dir, speed=30, brake=True)
         waitT()
@@ -88,7 +83,7 @@ def solve():
 
     faceDown = "D"
 
-    hold()
+    hold_cube()
 
     stepIndex = 0
 
@@ -128,7 +123,7 @@ def solve():
                     rot(1, 1)
                     turn(-1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "U"
                 elif step.startswith("L"):
                     release()
@@ -138,7 +133,7 @@ def solve():
                     rot(1, 1)
                     turn(1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "U"
 
             elif faceDown == "U":
@@ -165,7 +160,7 @@ def solve():
                     rot(1, 1)
                     turn(-1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "D"
                 elif step.startswith("L"):
                     release()
@@ -175,7 +170,7 @@ def solve():
                     rot(1, 1)
                     turn(1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "D"
 
             elif faceDown == "F":
@@ -202,7 +197,7 @@ def solve():
                     rot(1, 1)
                     turn(-1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "B"
                 elif step.startswith("L"):
                     release()
@@ -212,7 +207,7 @@ def solve():
                     rot(1, 1)
                     turn(1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "B"
 
             elif faceDown == "B":
@@ -239,7 +234,7 @@ def solve():
                     rot(1, 1)
                     turn(-1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "F"
                 elif step.startswith("L"):
                     release()
@@ -249,7 +244,7 @@ def solve():
                     rot(1, 1)
                     turn(1, 1)
                     if not (steps[stepIndex+1].startswith("R") or steps[stepIndex+1].startswith("L")):
-                        hold()
+                        hold_cube()
                     faceDown = "F"
         except:
             pass
@@ -282,17 +277,21 @@ if __name__ == "__main__":
 
     cube = Cube(ev3device, rotate, turnn)
 
+    print("Please insert cube!")
+
     while True:
         if ultrasonic.distance < 1.5:
             break
         time.sleep(0.1)
 
+    print("Cube detected!")
     time.sleep(1)
 
     cubestr = cube.scan()
     stepstr = kociemba.solve(cubestr)
-
+    print(stepstr)
     solve()
+    
     # rot(1,1)
 
     cube.disable_brake()
