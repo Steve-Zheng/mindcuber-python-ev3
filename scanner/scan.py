@@ -117,8 +117,8 @@ class Cube():
         # print(colors)
         with open("output.json", "w") as output_file:
             output_file.write(colors_str)
-        solve_steps = resolve_colors(["", "--filename", "output.json"])
-        return solve_steps
+        cube_string = resolve_colors(["", "--filename", "output.json"])
+        return cube_string
 
     def flip(self):
         current_position = self.flipper.position
