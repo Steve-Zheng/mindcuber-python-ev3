@@ -34,12 +34,13 @@ def release():
 
 
 def rot(dir=1, release=0):
-    print(dir,release)
+    # print(dir, release)
     for i in range(dir):
         cube.flip()
 
     if release == 0 or release == 1:
-        cube.push_flipper_away() 
+        cube.push_flipper_away()
+
 
 def hold_cube():
     current_position = rotate.position
@@ -50,6 +51,8 @@ def hold_cube():
 # roda a plataform
 # "dir" = 1 ou -1 : sentido ponteiros relogio ou contra relogio
 # "times" = quantas vezes roda (rodar 3 vezes é igual a rodar uma vez no sentido contrario)
+
+
 def turn(dir=1, times=1):
     if times == 1:
         turnn.start_move_by(-310*dir, speed=30, brake=True)
@@ -67,15 +70,16 @@ def turn(dir=1, times=1):
         turnn.start_move_by(-40*dir, speed=30, brake=True)
         waitT()
 
+
 def fix_rotate():
     pass
     # turnn.start_move_by(10,speed=80, brake=True)
 
 # solve the cube
+
+
 def solve():
     print("-------------------------")
-
-    timeItTakes = time.time()
 
     stepCount = 1
 
@@ -276,6 +280,10 @@ if __name__ == "__main__":
     ultrasonic = ev3.Ultrasonic(ev3.PORT_1, ev3_obj=ev3device)
 
     cube = Cube(ev3device, rotate, turnn)
+    patternchoice = input("Enter 1 to solve. Enter 2 for checkerboard: ")
+
+    while patternchoice != '1' and patternchoice != '2':
+        patternchoice = input("Invalid input! Please enter again: ")
 
     print("Please insert cube!")
 
@@ -287,11 +295,15 @@ if __name__ == "__main__":
     print("Cube detected!")
     time.sleep(1)
 
+    timeItTakes = time.time()
     cubestr = cube.scan()
-    stepstr = kociemba.solve(cubestr)
+    if patternchoice == '1':
+        stepstr = kociemba.solve(cubestr)
+    elif patternchoice == '2':
+        stepstr = kociemba.solve(cubestr,"UDUDUDUDURLRLRLRLRFBFBFBFBFDUDUDUDUDLRLRLRLRLBFBFBFBFB")
     print(stepstr)
     solve()
-    
+
     # rot(1,1)
 
     cube.disable_brake()
