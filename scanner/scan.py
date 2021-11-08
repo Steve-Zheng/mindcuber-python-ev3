@@ -208,12 +208,6 @@ class Cube():
         self.wait_sensor_arm()
 
     def put_arm_corner(self, i):
-        # if i == 3 or i == 5 or i == 7:
-        #     diff = self.corner_to_edge_diff
-        # elif i == 7:
-        #     diff = self.corner_to_edge_diff
-        # else:
-        #     diff = 0
         if i == 1:
             self.sensor_arm.start_move_to(-600, speed=30, brake=True)
         elif i == 3:
