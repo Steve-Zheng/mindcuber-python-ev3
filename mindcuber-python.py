@@ -280,9 +280,9 @@ if __name__ == "__main__":
     ultrasonic = ev3.Ultrasonic(ev3.PORT_1, ev3_obj=ev3device)
 
     cube = Cube(ev3device, rotate, turnn)
-    patternchoice = input("Enter 1 to solve. Enter 2 for checkerboard: ")
+    patternchoice = input("Enter 1 to solve. Enter 2 for checkerboard. Enter 3 for cube in cube in cube: ")
 
-    while patternchoice != '1' and patternchoice != '2':
+    while patternchoice != '1' and patternchoice != '2' and patternchoice != '3':
         patternchoice = input("Invalid input! Please enter again: ")
 
     print("Please insert cube!")
@@ -301,6 +301,8 @@ if __name__ == "__main__":
         stepstr = kociemba.solve(cubestr)
     elif patternchoice == '2':
         stepstr = kociemba.solve(cubestr,"UDUDUDUDURLRLRLRLRFBFBFBFBFDUDUDUDUDLRLRLRLRLBFBFBFBFB")
+    elif patternchoice == '3':
+        stepstr = kociemba.solve(cubestr,"LUBUUBBBBDDDRRDFRDRRRRFFRFDFDRFDDFFFBLULLUUUULBULBBLLL")
     print(stepstr)
     solve()
 
